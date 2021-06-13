@@ -5,7 +5,7 @@
 
 
 def swap(lyst, i, j):
-    temp =  lyst[i]
+    temp = lyst[i]
     lyst[i] = lyst[j]
     lyst[j] = temp
 
@@ -45,4 +45,3 @@ def bubbleSort(lyst):
                 swap(lyst, i, i - 1)
             i += 1
         n -= 1
-

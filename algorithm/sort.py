@@ -12,6 +12,7 @@ def swap(lyst, i, j):
 
 def selectionSort(lyst):
     """
+    选择排序
     Algorithm complexity：O(n^2)
 
     :param lyst:
@@ -32,6 +33,7 @@ def selectionSort(lyst):
 
 def bubbleSort(lyst):
     """
+    冒泡排序
     Algorithm complexity：O(n^2)
 
     :param lyst:

@@ -14,7 +14,7 @@ def logRecorder():
                  'line:%(lineno)-4d %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_format)
 
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("root")
     logger.setLevel(level=logging.INFO)
     formatter = logging.Formatter(log_format)
 

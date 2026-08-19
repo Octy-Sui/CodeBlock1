@@ -1,6 +1,7 @@
 # @Time    :2024/7/20 11:19
 # @Author  : octy
 
+from advanced.data_structure import Stack
 from advanced.list_node import Node
 from config.timer import timer
 
@@ -173,7 +174,157 @@ def find_median_in_two_arrays(array1, array2):
         return tmp_median_value2
 
 
+def match_brackets(input_str):
+    """
+    LeetCode 经典题库 20. 有效括号匹配
+    时间复杂度：O(n), 空间复杂度：O(n)
+    """
+    my_stack = Stack()
+    # 定义括号映射和常量
+    BRACKETS_MAP = {"{": "}", "[": "]", "(": ")"}
+    OPEN_BRACKETS = BRACKETS_MAP.keys()
+    CLOSE_BRACKETS = BRACKETS_MAP.values()
+    for curr_marker in input_str:
+        # 忽略非括号字符
+        if curr_marker not in OPEN_BRACKETS and curr_marker not in CLOSE_BRACKETS:
+            continue
+
+        if my_stack.is_empty():
+            my_stack.push(curr_marker)
+            continue
+        else:
+            pre_marker = my_stack.pop()
+        # 检查匹配情况
+        if pre_marker in OPEN_BRACKETS and curr_marker == BRACKETS_MAP[pre_marker]:
+            continue
+        else:
+            # 发现不匹配，重新压入栈以供后续处理或报告
+            my_stack.push(pre_marker)
+            my_stack.push(curr_marker)
+
+    # 栈为空表示完全匹配
+    if my_stack.is_empty():
+        print(f"{input_str} mismatch")
+    else:
+        print(f"{input_str} match")
+
+
+def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:
+    """
+    LeetCode 经典题库56. 合并区间
+    lst = [[5, 9], [2, 6], [8, 10], [15, 18]]
+    lst = [[1, 3], [2, 6], [8, 10], [15, 18]]
+    lst = [[1, 4], [4, 5]]
+    lst = [[1, 4]]
+    """
+    if not len(intervals):
+        raise ValueError("intervals 无具体数据")
+    for i in range(len(intervals)):
+        min_left_value = intervals[i][0]
+        min_left_index = i
+        for j in range(i + 1, len(intervals)):
+            if min_left_value > intervals[j][0]:
+                min_left_value = intervals[j][0]
+                min_left_index = j
+        if i != min_left_index:
+            intervals[i], intervals[min_left_index] = (
+                intervals[min_left_index],
+                intervals[i],
+            )
+
+    if len(intervals) == 1:
+        return intervals
+    tmp = []
+    merge_lst = intervals[0]
+    for k in range(1, len(intervals)):
+        if intervals[k][0] <= merge_lst[1]:
+            merge_lst = [
+                min(merge_lst[0], intervals[k][0]),
+                max(merge_lst[1], intervals[k][1]),
+            ]
+        else:
+            tmp.append(merge_lst)
+            merge_lst = intervals[k]
+    tmp.append(merge_lst)
+
+    return tmp
+
+
+def return_length_of_last_word(s):
+    """
+    LeetCode 经典题库58. 最后一个单词的长度
+    解决方案：
+    倒序遍历
+    时间复杂度: O(n), 空间复杂度: O(m)
+    """
+    # return the length of last word in a string
+    print("The result of " + s)
+    delimiter = [" "]
+    s = s.strip()
+    length = len(s)
+    if length == 0:
+        print(0)
+        return 0
+    word_count = 0
+    for i in range(length - 1, 0, -1):
+        if s[i] not in delimiter:
+            continue
+        else:
+            word_count = length - 1 - i
+            break
+    print(word_count)
+    return word_count
+
+
+def climb_stairs(num):
+    """
+    LeetCode 经典题库70. 爬楼梯
+    一只青蛙一次可以跳上1级台阶，也可以跳上2级，求青蛙跳上一个n级的台阶总共多少种跳法（先后次序不同算不同的结果）
+    探索规律：
+    (1):1
+    (2):11, 2
+    (3):111, 12, 21或者(1)2, (2)1
+    (4):1111, 112, 22, 121, 211或者(2)2, (3)1
+    (5):(3)2, (4)1
+    解决方案：
+    递归解决
+    时间复杂度: O(n^2), 空间复杂度: O(n)
+    状态转移方程:
+    f(1) = 1
+    f(2) = 2
+    f(n) = f(n-1) + f(n-2) n >= 3
+    """
+    if num == 1:
+        return 1
+    elif num == 2:
+        return 2
+    else:
+        return climb_stairs(num - 1) + climb_stairs(num - 2)
+
+
+def calc_max_profit(price_list):
+    """
+    LeetCode 经典题库 121. 买卖股票的最佳时机
+    假设你有一个数组，其中第i个元素是股票在第i天的价格。你有一次买入和卖出的机会。（只有买入股票以后才能卖出）。请你设计一个算法来
+    计算可以获得的最大收益。
+    探索规律：
+    前后差值最大的两个数字
+    时间复杂度：O(n), 空间复杂度：O(1)
+    """
+    max_profit = 0
+    cost = price_list[0]
+    for price in price_list:
+        max_profit = max(max_profit, (price - cost))
+        if price < cost:
+            cost = price
+            continue
+    return majority_frequency_group
+
+
 def contains_nearby_duplicate(nums: list[int], k: int) -> bool:
+    """
+    LeetCode 经典题库219. 存在重复元素 II
+    """
     for left, left_value in enumerate(nums):
         for right in range(
             left + 1, min(left + k + 1, len(nums))
@@ -197,6 +348,9 @@ def contains_nearby_duplicate_v2(nums: list[int], k: int) -> bool:
 
 
 def can_construct(ransomNote: str, magazine: str) -> bool:
+    """
+    LeetCode 经典题库 383 赎金信
+    """
     note_map: dict[str, int] = {}
     mgz_map: dict[str, int] = {}
     for i in ransomNote:
@@ -231,88 +385,9 @@ def can_construct_v2(ransomNote: str, magazine: str) -> bool:
     return True
 
 
-def majority_frequency_group(s: str) -> str:
-    """如果题目限定 s 只有 a-z; 可使用counts[ord(char) - 97] += 1统计频率"""
-    if not s:
-        raise ValueError("输入字段s为空")
-    char_cnt: dict[str, int] = {}
-    for char in s:
-        char_cnt[char] = char_cnt.get(char, 0) + 1
-
-    frep_map: dict[int, list[str]] = {}
-    max_group_size = 0
-    best_freq = 0
-    for char, freq in char_cnt.items():
-        if freq in frep_map:
-            frep_map[freq].append(char)
-        else:
-            frep_map[freq] = [char]
-            # if len(frep_map[freq]) > 1:
-        if len(frep_map[freq]) > max_group_size:
-            max_group_size = len(frep_map[freq])
-            best_freq = freq
-        elif len(frep_map[freq]) == max_group_size:
-            best_freq = max(best_freq, freq)
-    return "".join(frep_map[best_freq])
-
-
-@timer
-def count_distinct(n: int) -> int:
-    """
-    归纳总结
-    设 n 的十进制长度为 m。
-    对于长为 1,2,…,m−1 的不含 0 整数，每一位 1 到 9 可以随便填，所以长为 k 的不含 0 整数有 9
-    k个。
-    """
-    if n < 10:
-        return n
-    no_zero_cnt = 9
-    ind = 0
-    for i in range(10, n + 1):
-        remainder = i // (10**ind) % 10
-        ind_cnt = ind
-        head = i // 10**ind_cnt
-        while remainder:
-            if not head:
-                break
-            ind_cnt += 1
-            remainder = head % 10
-            head = i // (10**ind_cnt)
-        if remainder:
-            if not head:
-                no_zero_cnt += 1
-            else:
-                ind = max(ind, ind_cnt)
-    return no_zero_cnt
-
-
-@timer
-def countDistinct(n: int) -> int:
-    s = str(n)
-    m = len(s)
-
-    # 计算长度小于 m 的不含 0 的整数个数
-    # 9^1 + 9^2 + ... + 9^(m-1) = (9^m - 9) / 8
-    pow9 = 9**m
-    ans = (pow9 - 9) // 8
-
-    # 计算长度恰好等于 m 的不含 0 的整数个数
-    for i, d in enumerate(s):
-        if d == "0":  # 只能填 0，不合法，跳出循环
-            break
-        # 这一位填 1 到 d-1，后面的数位可以随便填 1 到 9
-        v = int(d) - 1
-        if i == m - 1:
-            v += 1  # 最低位可以等于 d
-        pow9 //= 9
-        ans += v * pow9
-        # 然后，这一位填 d，继续遍历
-
-    return ans
-
-
 def calc_max_sum_of_almost_only_subarray(nums: list[int], m: int, k: int) -> int:
     """
+    LeetCode 经典题库2841. 几乎唯一子数组的最大和
     本method实现为，包含任意k个中含m个不同元素的组合数组，非v2中的顺序k个元素包含m个不同元素
     """
     num_cnt_map: dict[int, int] = {}
@@ -367,6 +442,143 @@ def calc_max_sum_of_almost_only_subarray_v2(nums: list[int], m: int, k: int) -> 
         if len(num_cnt_map) >= m:
             max_sum = max(max_sum, tmp_sum)
     return max_sum
+
+
+def calc_max_sub_array_length(nums: list[int], k: int) -> int:
+    """
+    LeetCode 经典题库2958. 最多 K 个重复元素的最长子数组长度
+    """
+    len_max_sub_array = 0
+    from collections import deque
+
+    cursor = left = 0
+
+    while cursor < len(nums):
+        elem_cnt: dict[int, tuple[int, deque[int]]] = {}
+        for ind in range(left, len(nums)):
+            num = nums[ind]
+            if num in elem_cnt:
+                count, indexes = elem_cnt[num]
+                count += 1
+                indexes.append(ind)
+                elem_cnt[num] = (count, indexes)
+                if elem_cnt[num][0] > k:
+                    len_max_sub_array = max(ind - left, len_max_sub_array)
+                    cursor = left = elem_cnt[num][1].popleft() + 1
+                    break
+            else:
+                d = deque(maxlen=k + 1)  # 防止自行丢元素
+                d.append(ind)
+                elem_cnt[num] = (1, d)
+            cursor = ind + 1
+            len_max_sub_array = max(ind - left + 1, len_max_sub_array)
+    return len_max_sub_array
+
+
+def calc_max_sub_array_length_v2(nums: list[int], k: int) -> int:
+    """
+    标准滑动窗口
+    """
+    max_length = left = 0
+    counts: dict[int, int] = {}
+
+    for right, num in enumerate(nums):
+        counts[num] = counts.get(num, 0) + 1
+
+        while counts[num] > k:
+            counts[nums[left]] -= 1
+            left += 1
+
+        max_length = max(max_length, right - left + 1)
+
+    return max_length
+
+
+def majority_frequency_group(s: str) -> str:
+    """
+    LeetCode 经典题库3692. 众数频率字符
+    如果题目限定 s 只有 a-z; 可使用counts[ord(char) - 97] += 1统计频率
+    """
+    if not s:
+        raise ValueError("输入字段s为空")
+    char_cnt: dict[str, int] = {}
+    for char in s:
+        char_cnt[char] = char_cnt.get(char, 0) + 1
+
+    frep_map: dict[int, list[str]] = {}
+    max_group_size = 0
+    best_freq = 0
+    for char, freq in char_cnt.items():
+        if freq in frep_map:
+            frep_map[freq].append(char)
+        else:
+            frep_map[freq] = [char]
+            # if len(frep_map[freq]) > 1:
+        if len(frep_map[freq]) > max_group_size:
+            max_group_size = len(frep_map[freq])
+            best_freq = freq
+        elif len(frep_map[freq]) == max_group_size:
+            best_freq = max(best_freq, freq)
+    return "".join(frep_map[best_freq])
+
+
+@timer
+def count_distinct(n: int) -> int:
+    """
+    LeetCode 经典题库3747. 统计移除零后不同整数的数目
+    归纳总结
+    设 n 的十进制长度为 m。
+    对于长为 1,2,…,m−1 的不含 0 整数，每一位 1 到 9 可以随便填，所以长为 k 的不含 0 整数有 9
+    k个。
+    """
+    if n < 10:
+        return n
+    no_zero_cnt = 9
+    ind = 0
+    for i in range(10, n + 1):
+        remainder = i // (10**ind) % 10
+        ind_cnt = ind
+        head = i // 10**ind_cnt
+        while remainder:
+            if not head:
+                break
+            ind_cnt += 1
+            remainder = head % 10
+            head = i // (10**ind_cnt)
+        if remainder:
+            if not head:
+                no_zero_cnt += 1
+            else:
+                ind = max(ind, ind_cnt)
+    return no_zero_cnt
+
+
+@timer
+def countDistinct(n: int) -> int:
+    """
+    LeetCode 经典题库3747. 统计移除零后不同整数的数目
+    """
+    s = str(n)
+    m = len(s)
+
+    # 计算长度小于 m 的不含 0 的整数个数
+    # 9^1 + 9^2 + ... + 9^(m-1) = (9^m - 9) / 8
+    pow9 = 9**m
+    ans = (pow9 - 9) // 8
+
+    # 计算长度恰好等于 m 的不含 0 的整数个数
+    for i, d in enumerate(s):
+        if d == "0":  # 只能填 0，不合法，跳出循环
+            break
+        # 这一位填 1 到 d-1，后面的数位可以随便填 1 到 9
+        v = int(d) - 1
+        if i == m - 1:
+            v += 1  # 最低位可以等于 d
+        pow9 //= 9
+        ans += v * pow9
+        # 然后，这一位填 d，继续遍历
+
+    return ans
 
 
 if __name__ == "__main__":

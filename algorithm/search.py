@@ -96,7 +96,6 @@ def bst_search(target, sorted_lyst):
     时间复杂度：O(log2N), 空间复杂度：O(1)
     """
     # 见BinaryTree.py模块
-    pass
 
 
 if __name__ == "__main__":

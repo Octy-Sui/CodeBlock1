@@ -264,5 +264,16 @@ def main():
             break
 
 
+def convert_list_to_link_list(items: list) -> None | Node:
+    head: None | Node = None
+    for item in items:
+        if head is None:
+            head = Node(item)
+            cursor = head
+        else:
+            cursor.next = Node(item)
+    return head
+
+
 if __name__ == "__main__":
     main()

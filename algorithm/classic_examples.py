@@ -7,28 +7,16 @@
 """
 
 
-def calc_max_profit_with_dp(prices):
+def generate_fibonacci(max_terms):
     """
-    LeetCode 经典题库 122. 买卖股票的最佳时机 II
-    假设你有一个数组，其中第i个元素是股票在第i天的价格。你可以随时买入和卖出的机会。（只有买入股票以后才能卖出）。请你设计一个算法来
-    计算可以获得的最大收益。
-    解决方案：
-    动态优化
-    时间复杂度：O(n), 空间复杂度：O(n)
+    斐波那契数列
+    非递归实现
     """
-    # calculates the maximum profit of the prices in stacks
-    # use dynamic programming
-    # 状态转移方程：dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
-    #            dp[i][1] = max(dp[i-1][1], dp[i-1][0] - prices[i])
-    prices_length = len(prices)
-    dp = [[0, 0] for _ in range(prices_length)]
-    dp[0][0] = 0  # 未持有股票收益
-    dp[0][1] = 0 - prices[0]  # 持有股票收益
-
-    for i in range(1, prices_length):
-        dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i])
-        dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - prices[i])
-    return dp[prices_length - 1][0]
+    prev, curr = 0, 1
+    while max_terms > 0:
+        max_terms -= 1
+        yield curr
+        prev, curr = curr, prev + curr
 
 
 def climb_stairs_dp(num):
@@ -45,10 +33,66 @@ def climb_stairs_dp(num):
     if num == 1:
         return 1
     fn_2, fn_1 = 1, 2
-    for i in range(3, num + 1):
+    for _ in range(3, num + 1):
         current = fn_2 + fn_1
         fn_2, fn_1 = fn_1, current
     return fn_1
+
+
+class RainWaterTrapCalculator:
+    """
+    LeetCode 经典题库42. 接雨水
+    """
+
+    # calculate the water trapped in a region
+    # use two pointers to detect the left and right wall
+
+    @staticmethod
+    def calculate_water_in_region(wall_heights):
+        max_height = min(wall_heights[0], wall_heights[-1])
+        water_volume = 0
+        for height in wall_heights:
+            if height < max_height:
+                water_volume += max_height - height
+        return water_volume
+
+    def total_trapped_water(self, heights):
+        left_wall_detected = False
+        left_pointer = 0
+        total_water = 0
+        for i in range(1, len(heights)):
+            if not left_wall_detected:
+                if heights[i - 1] <= heights[i]:
+                    left_pointer = i
+                else:
+                    left_wall_detected = True
+            else:
+                if heights[i - 1] < heights[i]:
+                    total_water = total_water + self.calculate_water_in_region(
+                        heights[left_pointer : i + 1]
+                    )
+                    left_wall_detected = False
+                    left_pointer = i
+        return total_water
+
+
+def return_sub(input_str):
+    """
+    LeetCode 经典题库78. 子集
+    子集包含：空集、自身等组合场景
+    借助位运算求解
+    字符串的每个位置状态，借助byte值来确定；0不取，1取
+    """
+    # find all sub list depending on input list
+    length = len(input_str)
+    combo = []
+    for i in range(2**length):
+        sub = []
+        for j in range(length):
+            if (i >> j) % 2:  # 确认第j位byte是否为1; 已确认该值是否选择
+                sub.append(input_str[j])
+        combo.append("".join(sub))
+    print(f"length: {0}, {1}".format(len(combo), combo))
 
 
 def find_minimum_path_sum(triangle):
@@ -87,3 +131,27 @@ def find_minimum_path_sum(triangle):
                         + triangle[i][j]
                     )
     return min(min_value[-1])
+
+
+def calc_max_profit_with_dp(prices):
+    """
+    LeetCode 经典题库 122. 买卖股票的最佳时机 II
+    假设你有一个数组，其中第i个元素是股票在第i天的价格。你可以随时买入和卖出的机会。（只有买入股票以后才能卖出）。请你设计一个算法来
+    计算可以获得的最大收益。
+    解决方案：
+    动态优化
+    时间复杂度：O(n), 空间复杂度：O(n)
+    """
+    # calculates the maximum profit of the prices in stacks
+    # use dynamic programming
+    # 状态转移方程：dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+    #            dp[i][1] = max(dp[i-1][1], dp[i-1][0] - prices[i])
+    prices_length = len(prices)
+    dp = [[0, 0] for _ in range(prices_length)]
+    dp[0][0] = 0  # 未持有股票收益
+    dp[0][1] = 0 - prices[0]  # 持有股票收益
+
+    for i in range(1, prices_length):
+        dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i])
+        dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - prices[i])
+    return dp[prices_length - 1][0]

@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2024/7/20 11:19
 # @Author  : octy
 
-from advanced.ListNode import Node
+from advanced.list_node import Node
+from config.timer import timer
 
 
 def two_sum(nums, target):
@@ -83,7 +82,7 @@ def calc_max_length_of_sub_str(string):
     3(kew)
     解题思路：
     滑动窗口 注意左右窗口边界和整个序列的左右边界处理 时间复杂度: O(n) -> O(n^2), 空间复杂度: O(∣Σ∣)
-   """
+    """
     max_length = 0
     head = tail = 0
     length_str = len(string)
@@ -174,9 +173,206 @@ def find_median_in_two_arrays(array1, array2):
         return tmp_median_value2
 
 
+def contains_nearby_duplicate(nums: list[int], k: int) -> bool:
+    for left, left_value in enumerate(nums):
+        for right in range(
+            left + 1, min(left + k + 1, len(nums))
+        ):  # 只关心距离 <= k， 后面的元素都没必要再检查
+            if left_value == nums[right]:
+                return True
+    return False
+
+
+def contains_nearby_duplicate_v2(nums: list[int], k: int) -> bool:
+    """哈希表记录最近一次出现位置"""
+    last_index: dict[int, int] = {}
+
+    for index, num in enumerate(nums):
+        if num in last_index and index - last_index[num] <= k:
+            return True
+
+        last_index[num] = index
+
+    return False
+
+
+def can_construct(ransomNote: str, magazine: str) -> bool:
+    note_map: dict[str, int] = {}
+    mgz_map: dict[str, int] = {}
+    for i in ransomNote:
+        note_map[i] = note_map.get(i, 0) + 1
+    for j in magazine:
+        mgz_map[j] = mgz_map.get(j, 0) + 1
+    for k, cnt in note_map.items():
+        if k not in mgz_map:
+            return False
+        if cnt > mgz_map[k]:
+            return False
+    return True
+
+
+def can_construct_v2(ransomNote: str, magazine: str) -> bool:
+    """限定字符为小写英文字母，因此不需要 dict, 使用 list"""
+    if len(ransomNote) > len(magazine):
+        return False
+
+    counts = [0] * 26
+
+    for char in magazine:
+        counts[ord(char) - 97] += 1
+
+    for char in ransomNote:
+        index = ord(char) - 97
+        counts[index] -= 1
+
+        if counts[index] < 0:
+            return False
+
+    return True
+
+
+def majority_frequency_group(s: str) -> str:
+    """如果题目限定 s 只有 a-z; 可使用counts[ord(char) - 97] += 1统计频率"""
+    if not s:
+        raise ValueError("输入字段s为空")
+    char_cnt: dict[str, int] = {}
+    for char in s:
+        char_cnt[char] = char_cnt.get(char, 0) + 1
+
+    frep_map: dict[int, list[str]] = {}
+    max_group_size = 0
+    best_freq = 0
+    for char, freq in char_cnt.items():
+        if freq in frep_map:
+            frep_map[freq].append(char)
+        else:
+            frep_map[freq] = [char]
+            # if len(frep_map[freq]) > 1:
+        if len(frep_map[freq]) > max_group_size:
+            max_group_size = len(frep_map[freq])
+            best_freq = freq
+        elif len(frep_map[freq]) == max_group_size:
+            best_freq = max(best_freq, freq)
+    return "".join(frep_map[best_freq])
+
+
+@timer
+def count_distinct(n: int) -> int:
+    """
+    归纳总结
+    设 n 的十进制长度为 m。
+    对于长为 1,2,…,m−1 的不含 0 整数，每一位 1 到 9 可以随便填，所以长为 k 的不含 0 整数有 9
+    k个。
+    """
+    if n < 10:
+        return n
+    no_zero_cnt = 9
+    ind = 0
+    for i in range(10, n + 1):
+        remainder = i // (10**ind) % 10
+        ind_cnt = ind
+        head = i // 10**ind_cnt
+        while remainder:
+            if not head:
+                break
+            ind_cnt += 1
+            remainder = head % 10
+            head = i // (10**ind_cnt)
+        if remainder:
+            if not head:
+                no_zero_cnt += 1
+            else:
+                ind = max(ind, ind_cnt)
+    return no_zero_cnt
+
+
+@timer
+def countDistinct(n: int) -> int:
+    s = str(n)
+    m = len(s)
+
+    # 计算长度小于 m 的不含 0 的整数个数
+    # 9^1 + 9^2 + ... + 9^(m-1) = (9^m - 9) / 8
+    pow9 = 9**m
+    ans = (pow9 - 9) // 8
+
+    # 计算长度恰好等于 m 的不含 0 的整数个数
+    for i, d in enumerate(s):
+        if d == "0":  # 只能填 0，不合法，跳出循环
+            break
+        # 这一位填 1 到 d-1，后面的数位可以随便填 1 到 9
+        v = int(d) - 1
+        if i == m - 1:
+            v += 1  # 最低位可以等于 d
+        pow9 //= 9
+        ans += v * pow9
+        # 然后，这一位填 d，继续遍历
+
+    return ans
+
+
+def calc_max_sum_of_almost_only_subarray(nums: list[int], m: int, k: int) -> int:
+    """
+    本method实现为，包含任意k个中含m个不同元素的组合数组，非v2中的顺序k个元素包含m个不同元素
+    """
+    num_cnt_map: dict[int, int] = {}
+    for num in nums:
+        num_cnt_map[num] = num_cnt_map.get(num, 0) + 1
+    if len(num_cnt_map) < m:
+        return 0
+    if len(nums) == k:
+        return sum(nums)
+    if m == k:
+        return sum(num_cnt_map.keys())
+    sub = k - m
+    result = 0
+    for num, cnt in sorted(num_cnt_map.items(), reverse=True):
+        if m:
+            m -= 1
+            result += num
+        if not m and not sub:
+            break
+        if sub:
+            delta = cnt - 1
+            if delta >= sub:
+                result += num * sub
+                sub -= sub
+            else:
+                result += num * delta
+                sub -= delta
+    return result
+
+
+def calc_max_sum_of_almost_only_subarray_v2(nums: list[int], m: int, k: int) -> int:
+    num_cnt_map: dict[int, int] = {}
+    max_sum = tmp_sum = 0
+    for i in range(k):
+        num = nums[i]
+        num_cnt_map[num] = num_cnt_map.get(num, 0) + 1
+        tmp_sum += num
+    if len(num_cnt_map) >= m:
+        max_sum = max(max_sum, tmp_sum)
+    for left in range(1, len(nums)):
+        right = left + k
+        if right > len(nums):
+            break
+        to_delete_num = nums[left - 1]
+        tmp_sum -= to_delete_num
+        num_cnt_map[to_delete_num] = num_cnt_map.get(to_delete_num, 1) - 1
+        if not num_cnt_map[to_delete_num]:
+            del num_cnt_map[to_delete_num]
+        new_added_num = nums[right - 1]
+        tmp_sum += new_added_num
+        num_cnt_map[new_added_num] = num_cnt_map.get(new_added_num, 0) + 1
+        if len(num_cnt_map) >= m:
+            max_sum = max(max_sum, tmp_sum)
+    return max_sum
+
+
 if __name__ == "__main__":
     # rv = find_median_in_two_arrays(array1=[1, 3], array2=[2])
     # print(rv)
-    print(calc_max_length_of_sub_str_v2("pwwkew"))
-    print(calc_max_length_of_sub_str_v2("bbbbb"))
-    print(calc_max_length_of_sub_str_v2("abcabcbb"))
+    nums = [1, 1, 1, 3]
+    m = 2
+    k = 2
+    print(calc_max_sum_of_almost_only_subarray_v2(nums, m, k))

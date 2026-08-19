@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/7/24 2:43 下午
 # @Author  : octy
 """
@@ -10,43 +8,64 @@ heap: binary tree, red black tree
 import array
 import collections
 import queue
+from abc import ABC, abstractmethod
+from collections.abc import Iterable, Iterator
+from typing import Self, TypeVar
+
+T = TypeVar("T")
 
 
-class AbstractCollection(object):
-
-    def __init__(self, source_collection=None):
+class AbstractCollection[T](ABC):
+    def __init__(
+        self,
+        source_collection: Iterable[T] | None = None,
+    ) -> None:
         self._size = 0
-        if source_collection:
+
+        if source_collection is not None:
             for item in source_collection:
                 self.add(item)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self._size
 
-    def __add__(self, other):
-        temp = type(self)(self)
+    @abstractmethod
+    def __iter__(self) -> Iterator[T]:
+        """返回集合元素的迭代器。"""
+        raise NotImplementedError
+
+    @abstractmethod
+    def add(self, item: T) -> None:
+        """添加元素，并维护 self._size。"""
+        raise NotImplementedError
+
+    def __add__(self, other: Iterable[T]) -> Self:
+        tmp = type(self)(self)
+
         for item in other:
-            temp.add(item)
-        return temp
+            tmp.add(item)
 
-    def __eq__(self, other):
-        if type(self) != type(other) or len(self) != len(other):
+        return tmp
+
+    def __eq__(self, other: object) -> bool:
+        if type(self) is not type(other):
+            return NotImplemented
+
+        assert isinstance(other, AbstractCollection)
+
+        if len(self) != len(other):
             return False
-        other_iter = iter(other)
-        for item in self:
-            if item != next(other_iter):
-                return False
-        return True
 
-    def is_empty(self):
+        return all(left == right for left, right in zip(self, other, strict=True))
+
+    def is_empty(self) -> bool:
         return len(self) == 0
 
 
 class Stack(AbstractCollection):
-
     def __init__(self, source_collection=None):
         self._stack = collections.deque()
-        super(Stack, self).__init__(source_collection)
+        super().__init__(source_collection)
 
     def __iter__(self):
         while not self.is_empty():
@@ -65,10 +84,9 @@ class Stack(AbstractCollection):
 
 
 class Queue(AbstractCollection):
-
     def __init__(self, source_collection=None):
         self._queue = collections.deque()
-        super(Queue, self).__init__(source_collection)
+        super().__init__(source_collection)
 
     def __iter__(self):
         while not self.is_empty():
@@ -110,7 +128,7 @@ def MyStack():
     """
     deque = collections.deque()
     for i in range(10):
-        tmp = "My stack data{}".format(i)
+        tmp = f"My stack data{0}".format(i)
         deque.append(tmp)
     for j in range(10):
         rv = deque.pop()
@@ -126,7 +144,7 @@ def MyDeque():
     """
     deque = collections.deque()
     for i in range(10):
-        tmp = "My deque data{}".format(i)
+        tmp = f"My deque data{0}".format(i)
         deque.append(tmp)
     for j in range(10):
         rv = deque.popleft()
@@ -143,7 +161,7 @@ def MyQueue():
     """
     queuor = queue.Queue()
     for i in range(20):
-        tmp = "My queue data{}".format(i)
+        tmp = f"My queue data{0}".format(i)
         queuor.put(tmp)
     for j in range(20):
         rv = queuor.get()
@@ -157,12 +175,12 @@ def tes_module():
     MyQueue()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tes_module()
-    obj = Stack([1,2,3,4])
+    obj = Stack([1, 2, 3, 4])
     obj = obj + Stack([6, 7])
     for i in obj:
         print(i)
-    obj = Queue([1,2,3,4])
+    obj = Queue([1, 2, 3, 4])
     for i in obj:
         print(i)

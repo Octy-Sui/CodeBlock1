@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/7/24 3:02 下午
 # @Author  : octy
 
@@ -84,5 +82,8 @@ def find_minimum_path_sum(triangle):
                 if i - 1 < j:
                     min_value[i].append(min_value[i - 1][j - 1] + triangle[i][j])
                 else:
-                    min_value[i].append(min(min_value[i - 1][j], min_value[i - 1][j - 1]) + triangle[i][j])
+                    min_value[i].append(
+                        min(min_value[i - 1][j], min_value[i - 1][j - 1])
+                        + triangle[i][j]
+                    )
     return min(min_value[-1])

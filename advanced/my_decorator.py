@@ -1,14 +1,11 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/6/13 9:59 下午
 # @Author  : octy
 import functools
-import logging as log
+import logging
 import random
 import time
 
-import config.logger
-
+log = logging.getLogger(__name__)
 """
 1. 装饰器（Decoration）:
     - 装饰器是一种设计模式，经常用来实现"面向切面的编程"(AOP: 实现在不修改源代码的情况下，给程序动态添加功能的一种技术)
@@ -43,7 +40,7 @@ def timer(func):
         st = time.time()
         func(*args, **kwargs)
         elapsed = (time.time() - st) * 1000
-        log.info("Cost time is %d ms" % elapsed)
+        log.info(f"Cost time is {elapsed} ms")
         log.info("Timer end")
 
     log.info("After timer wrapper.")
@@ -133,9 +130,8 @@ main是装载装饰器的过程，相当于执行了main=logger(timer(main))，
 @ClassDecorator
 @logger
 @timer
-def main(name, content=None):
+def main(name, content: str):
     log.info("The name of executor is " + name)
-    tmp = 0
     for i in range(5):
         time.sleep(random.random())
     log.info("Try to print something:" + content)

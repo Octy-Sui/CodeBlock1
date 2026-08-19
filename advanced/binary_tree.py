@@ -1,13 +1,10 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/7/25 10:03 下午
 # @Author  : octy
 
-from advanced.DataStructure import Stack, Queue
+from advanced.data_structure import Queue, Stack
 
 
-class TreeNode(object):
-
+class TreeNode:
     def __init__(self, _data, _left=None, _right=None):
         self.left = _left
         self.data = _data
@@ -15,9 +12,8 @@ class TreeNode(object):
 
 
 class RBTreeNode(TreeNode):
-
     def __init__(self, _data, _left=None, _right=None):
-        super(RBTreeNode, self).__init__(_data, _left, _right)
+        super().__init__(_data, _left, _right)
         self.color = "black"
         self.parent = None
 
@@ -28,7 +24,7 @@ def convert_array_to_bst_traversal(nums_list):
     mid = len(nums_list) // 2
     root = TreeNode(nums_list[mid])
     root.left = convert_array_to_bst_traversal(nums_list[:mid])
-    root.right = convert_array_to_bst_traversal(nums_list[mid + 1:])
+    root.right = convert_array_to_bst_traversal(nums_list[mid + 1 :])
     return root
 
 
@@ -67,9 +63,9 @@ def convert_array_to_bst_with_stack(nums_list):
         R0
        /  \
      R1    R2
-    / \   /  \
+    / \\   /  \\
    R3 R4 R5  R6
-Array中位置：0  1  2  3  4  5  6 
+Array中位置：0  1  2  3  4  5  6
             R0,R1,R2,R3,R4,R5,R6
 父节点index：parent
 左孩子index：parent*2 + 1
@@ -77,10 +73,9 @@ Array中位置：0  1  2  3  4  5  6
 """
 
 
-class BinTree(object):
-
+class BinTree:
     def __init__(self):
-        self.root: TreeNode = None
+        self.root = None
         self._length = 0
 
     def __len__(self):
@@ -202,7 +197,7 @@ class BinTree(object):
         mid = len(sorted_array) // 2
         root = TreeNode(sorted_array[mid])
         root.left = self._convert_array_to_bst_traversal(sorted_array[:mid])
-        root.right = self._convert_array_to_bst_traversal(sorted_array[mid + 1:])
+        root.right = self._convert_array_to_bst_traversal(sorted_array[mid + 1 :])
         return root
 
     def create_tree_from_array(self, sorted_array=None):
@@ -303,7 +298,7 @@ class BinTree(object):
     def postorder_with_stack_v2(self):
         """
         后序遍历（Postorder Traversal）的顺序是“左-右-根”，即先遍历左子树，然后遍历右子树，最后访问根节点。
-        第一次遍历，类似前序遍历，但将节点值先放入output; 第二次遍历，反转output，得到正确的后序遍历顺序
+        第一次遍历，类似前序遍历“根-右-左”，但将节点值先放入output; 第二次遍历，反转output，得到正确的后序遍历顺序
         """
         stack = Stack()
         output = []
@@ -316,7 +311,8 @@ class BinTree(object):
             stack.push(cursor.left)
             stack.push(cursor.right)
         for item in reversed(output):
-            yield item
+            y = item
+            yield y
 
     def level_order_with_stack(self):
         rv = []
@@ -342,7 +338,7 @@ class BinTree(object):
             level_nodes = my_queue.get()
             for cursor in level_nodes:
                 if cursor is not None:
-                    print(cursor.data, end=' ')
+                    print(cursor.data, end=" ")
                 else:
                     continue
                 level.append(cursor.left)
@@ -423,7 +419,7 @@ def print_tree_pretty(node):
 
     # 打印每个层级
     for level, nodes in level_widths.items():
-        print(' '.join(str(node).rjust(3) for node in nodes))
+        print(" ".join(str(node).rjust(3) for node in nodes))
 
 
 class BinSearchTree(BinTree):
@@ -440,7 +436,7 @@ class BinSearchTree(BinTree):
     """
 
     def __init__(self):
-        super(BinSearchTree, self).__init__()
+        super().__init__()
 
 
 class MinHeap(BinTree):
@@ -452,7 +448,7 @@ class MinHeap(BinTree):
     """
 
     def __init__(self):
-        super(MinHeap, self).__init__()
+        super().__init__()
 
     @staticmethod
     def down_adjust(array, cursor, length):
@@ -460,7 +456,10 @@ class MinHeap(BinTree):
         child_cursor = 2 * cursor + 1
         while child_cursor < length:
             # 如果存在右节点，且右节点值小于左节点值；则定位至右节点
-            if child_cursor + 1 < length and array[child_cursor] > array[child_cursor + 1]:
+            if (
+                child_cursor + 1 < length
+                and array[child_cursor] > array[child_cursor + 1]
+            ):
                 child_cursor += 1
             # 如果当前节点小于等于子节点值，则退出
             if tmp <= array[child_cursor]:
@@ -498,7 +497,7 @@ class MaxHeap(BinTree):
     """
 
     def __init__(self):
-        super(MaxHeap, self).__init__()
+        super().__init__()
 
     @staticmethod
     def down_adjust(array, cursor, length):
@@ -506,7 +505,10 @@ class MaxHeap(BinTree):
         child_cursor = 2 * cursor + 1
         while child_cursor < length:
             # 如果存在右节点，且右节点值小于左节点值；则定位至右节点
-            if child_cursor + 1 < length and array[child_cursor] < array[child_cursor + 1]:
+            if (
+                child_cursor + 1 < length
+                and array[child_cursor] < array[child_cursor + 1]
+            ):
                 child_cursor += 1
             # 如果当前节点小于等于子节点值，则退出
             if tmp >= array[child_cursor]:
@@ -535,7 +537,7 @@ class MaxHeap(BinTree):
         return array
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # input_data = [3, 2, 9, None, None, 10, None, None, 8, None, 4]
     # obj = BinTree()
     # obj.create_tree(input_data)
@@ -549,8 +551,8 @@ if __name__ == '__main__':
     # print(bst.root.data)
     bst.preorder_with_stack()
     bst.post_order_traversal()
+    bst.postorder_with_stack()
     print(list(bst.postorder_with_stack_v2()))
-    print_tree_pretty(bst.root)
-    print(MinHeap.build_min_heap(input_array))
-    print(MaxHeap.build_max_heap(input_array))
-
+    # print_tree_pretty(bst.root)
+    # print(MinHeap.build_min_heap(input_array))
+    # print(MaxHeap.build_max_heap(input_array))

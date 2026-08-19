@@ -1,41 +1,41 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/6/12 12:02 下午
 # @Author  : octy
 
 import json
-import logging as log
+import logging
 import multiprocessing
 import os
 import random
 import time
+from multiprocessing.synchronize import Lock
 
 import requests
 
-from config.logger import logRecorder
+logger = logging.getLogger(__name__)
 
 
 def function_process(name, num=2):
-    log.info("Function Process name:" + name)
-    log.info("ProcessID".format(os.getpid()))
-    log.info("output number is {}".format(num + random.random()))
+    logger.info("Function Process name:" + name)
+    logger.info("ProcessID")
+    logger.info(f"output number is {num + random.random()}")
 
 
 class MyProcess(multiprocessing.Process):
-
     def __init__(self, name):
-        super(MyProcess, self).__init__()
+        super().__init__()
         self.name = name
-        log.info("Class Process name:" + self.name)
+        logger.info("Class Process name:" + self.name)
 
     def run(self):
-        log.info("ProcessID".format(os.getpid()))
+        logger.info("ProcessID")
 
 
 def process_usage():
     # 创建进程
     # 直接调用
-    function_process1 = multiprocessing.Process(target=function_process, args=("function_process1", 5))
+    function_process1 = multiprocessing.Process(
+        target=function_process, args=("function_process1", 5)
+    )
     # 继承式调用
     class_process1 = MyProcess("class_process1")
     # 守护进程
@@ -63,28 +63,30 @@ def process_usage():
 
 
 class TicketsBuyer(multiprocessing.Process):
-
-    def __init__(self, name, locker):
-        super(TicketsBuyer, self).__init__()
+    def __init__(self, name: str, locker: Lock):
+        super().__init__()
         self.name = name
         self.locker = locker
-        log.info("ProcessID".format(os.getpid()))
-        log.info("customer name:" + self.name)
+        logger.info("ProcessID")
+        logger.info("customer name:" + self.name)
 
     def query(self):
-        dic = json.load(open('db.txt'))
-        log.info('剩余票数:{}'.format(dic['count']))
+        with open("db.txt") as f:
+            dic = json.load(f)
+        logger.info("剩余票数:{}".format(dic["count"]))
 
     def order(self):
-        dic = json.load(open('db.txt'))
+        with open("db.txt") as f:
+            dic = json.load(f)
         time.sleep(random.random())  # 模拟读数据的网络延迟
-        if dic['count'] > 0:
-            dic['count'] -= 1
+        if dic["count"] > 0:
+            dic["count"] -= 1
             time.sleep(random.random())  # 模拟写数据的网络延迟
-            json.dump(dic, open('db.txt', 'w'))
-            log.info('{}购票成功, 剩余票数:{}'.format(self.name, dic['count']))
+            with open("db.txt", "w") as f:
+                json.dump(dic, f)
+            logger.info("{}购票成功, 剩余票数:{}".format(self.name, dic["count"]))
         else:
-            log.info("{}购票失败，余票数量为{}".format(self.name, dic['count']))
+            logger.info("{}购票失败，余票数量为{}".format(self.name, dic["count"]))
 
     def run(self):
 
@@ -97,7 +99,7 @@ class TicketsBuyer(multiprocessing.Process):
 def lock_usage():
     locker = multiprocessing.Lock()
     for num in range(21):
-        customer_name = "process_lock{}".format(num)
+        customer_name = f"process_lock{num}"
         pro = TicketsBuyer(customer_name, locker)
         pro.start()
 
@@ -123,27 +125,42 @@ mutiprocessing模块为我们提供的基于消息的IPC通信机制：队列和
 
 
 def consumer(queue, name):
-    log.info(" Consumer {} ProcessID:{}".format(name, os.getpid()))
+    logger.info(f" Consumer {name} ProcessID:{os.getpid()}")
     while True:
         food = queue.get()
         if food is None:
-            log.info("Had a great meal.Thanks!")
+            logger.info("Had a great meal.Thanks!")
             break
-        log.info("{} gets {}".format(name, food))
+        logger.info(f"{name} gets {food}")
         time.sleep(random.randint(1, 3))
-        log.info("{} ate {}".format(name, food))
+        logger.info(f"{name} ate {food}")
 
 
 def producer(queue, name):
-    log.info("Producer {} ProcessID:{}".format(name, os.getpid()))
-    menu = ["蒸羊羔", "蒸熊掌", "蒸鹿尾儿", "烧花鸭", "烧雏鸡", "烧子鹅", "卤猪", "卤鸭", "酱鸡", "腊肉", "松花", "小肚儿",
-            "晾肉", "香肠", "什锦苏盘", ]
+    logger.info(f"Producer {name} ProcessID:{os.getpid()}")
+    menu = [
+        "蒸羊羔",
+        "蒸熊掌",
+        "蒸鹿尾儿",
+        "烧花鸭",
+        "烧雏鸡",
+        "烧子鹅",
+        "卤猪",
+        "卤鸭",
+        "酱鸡",
+        "腊肉",
+        "松花",
+        "小肚儿",
+        "晾肉",
+        "香肠",
+        "什锦苏盘",
+    ]
     for food in menu:
         time.sleep(random.randint(1, 3))
         queue.put(food)
-        log.info("{} have made {}".format(name, food))
+        logger.info(f"{name} have made {food}")
     queue.put(None)
-    log.info("Producer have made all food.")
+    logger.info("Producer have made all food.")
 
 
 def queue_usage():
@@ -180,7 +197,7 @@ def receiver(pipe, name):
     while True:
         try:
             num = right.recv()
-            log.info("{} receive number {}".format(name, num))
+            logger.info(f"{name} receive number {num}")
         except EOFError:
             right.close()
             break
@@ -192,9 +209,8 @@ def sender(pipe):
     for i in range(10):
         time.sleep(random.random())
         left.send(i)
-        log.info("Send {} to pipe".format(i))
-    else:
-        left.close()
+        logger.info(f"Send {i} to pipe")
+    left.close()
 
 
 """
@@ -209,7 +225,9 @@ def sender(pipe):
 def pipe_usage():
     left, right = multiprocessing.Pipe()
 
-    consumer1 = multiprocessing.Process(target=receiver, args=((left, right), 'consumer1'))
+    consumer1 = multiprocessing.Process(
+        target=receiver, args=((left, right), "consumer1")
+    )
     consumer1.start()
 
     sender((left, right))
@@ -234,20 +252,20 @@ def pipe_usage():
 
 def work(d, locker):
     with locker:  # 不加锁而操作共享的数据,肯定会出现数据错乱
-        d['count'] -= 1
+        d["count"] -= 1
 
 
 def manager_usage():
     lock = multiprocessing.Lock()
     with multiprocessing.Manager() as mag:
-        info = mag.dict({'count': 111})
+        info = mag.dict({"count": 111})
         process_list = []
         for i in range(100):
             process = multiprocessing.Process(target=work, args=(info, lock))
             process_list.append(process)
             process.start()
             process.join()
-        log.info(info)
+        logger.info(info)
 
 
 """
@@ -264,7 +282,7 @@ def manager_usage():
 
 例如当被操作对象数目不大时，可以直接利用multiprocessing中的Process动态成生多个进程，十几个还好，
 但如果是上百个，上千个。。。手动的去限制进程数量却又太过繁琐，此时可以发挥进程池的功效。
-我们就可以通过维护一个进程池来控制进程数目，比如httpd的进程模式，规定最小进程数和最大进程数... 
+我们就可以通过维护一个进程池来控制进程数目，比如httpd的进程模式，规定最小进程数和最大进程数...
 对于远程过程调用的高级应用程序而言，应该使用进程池，Pool可以提供指定数量的进程，供用户调用。
 当有新的请求提交到pool中时，如果池还没有满，那么就会创建一个新的进程用来执行该请求；
 但如果池中的进程数已经达到规定最大值，那么该请求就会等待，直到池中有进程结束，就重用进程池中的进程。
@@ -280,8 +298,8 @@ Pool([numprocess  [,initializer [, initargs]]]):创建进程池
 
 def calc(num, name):
     time.sleep(random.random())
-    tmp = num ** 2
-    log.info("the square of {} is {}, in Process {} {}".format(num, tmp, name, os.getpid()))
+    tmp = num**2
+    logger.info(f"the square of {num} is {tmp}, in Process {name} {os.getpid()}")
     return tmp
 
 
@@ -295,14 +313,16 @@ def pool_usage():
         rv = pool.apply(calc, args=(i, "sync"))
         # 同步执行，即执行完一个拿到结果，再去执行另外一个
         result_list.append(rv)
-    log.info(result_list)
+    logger.info(result_list)
 
     # 异步apply_async用法：如果使用异步提交的任务，主进程需要使用join，等待进程池内任务都处理完，然后可以用get收集结果;
     # 否则，主进程结束，进程池可能还没来得及执行，也就跟着一起结束了
 
     result_async = []
     for i in range(10):
-        rv = pool.apply_async(calc, args=(i, "async"))  # 同步运行,阻塞、直到本次任务执行完毕拿到res
+        rv = pool.apply_async(
+            calc, args=(i, "async")
+        )  # 同步运行,阻塞、直到本次任务执行完毕拿到res
         result_async.append(rv)
     # 没有后面的join，或get，则程序整体结束，进程池中的任务还没来得及全部执行完也都跟着主进程一起结束了
     # 关闭进程池，防止进一步操作。如果所有操作持续挂起，它们将在工作进程终止前完成
@@ -311,7 +331,7 @@ def pool_usage():
     pool.join()
     for res in result_async:
         # 使用get来获取apply_async的结果,如果是apply,则没有get方法,因为apply是同步执行,立刻获取结果,也根本无需get
-        log.info("The result is {}".format(res.get()))
+        logger.info(f"The result is {res.get()}")
 
 
 """
@@ -326,31 +346,33 @@ def pool_usage():
 
 
 def get_page(url):
-    log.info("Process {} get {}".format(os.getpid(), url))
+    logger.info(f"Process {os.getpid()} get {url}")
     response = requests.get(url)
     if response.status_code == 200:
-        log.info("Got the result of " + url)
+        logger.info("Got the result of " + url)
         rv = response.text
     else:
-        log.error("Not get the complete web content, the status code of web is {}".format(response.status_code))
+        logger.error(
+            f"Not get the complete web content, the status code of web is {response.status_code}"
+        )
         rv = "Not get the web content."
-    return {'url': url, 'status_code': response.status_code, 'text': rv}
+    return {"url": url, "status_code": response.status_code, "text": rv}
 
 
 def parse_page(res):
-    log.info("Process {} parse {}".format(os.getpid(), res["url"]))
-    parse_res = 'url:<%s> size:[%s]\n' % (res['url'], len(res['text']))
-    with open('web_db.txt', 'a') as f:
+    logger.info("Process {} parse {}".format(os.getpid(), res["url"]))
+    parse_res = "url:<{}> size:[{}]\n".format(res["url"], len(res["text"]))
+    with open("web_db.txt", "a") as f:
         f.write(parse_res)
 
 
 def callback_function_usage():
     urls = [
-        'https://www.baidu.com',
-        'https://www.python.org',
-        'https://www.openstack.org',
-        'https://help.github.com/',
-        'http://www.sia.com.cn/'
+        "https://www.baidu.com",
+        "https://www.python.org",
+        "https://www.openstack.org",
+        "https://help.github.com/",
+        "http://www.sia.com.cn/",
     ]
 
     pool = multiprocessing.Pool(4)
@@ -362,7 +384,7 @@ def callback_function_usage():
     pool.close()
     pool.join()
     # 拿到的是get_page的结果,其实完全没必要拿该结果,该结果已经传给回调函数处理了
-    log.info([res.get()["status_code"] for res in result_list])
+    logger.info([res.get()["status_code"] for res in result_list])
 
 
 """
@@ -372,11 +394,10 @@ https://www.cnblogs.com/jiangfan95/p/11439207.html
 
 
 def main():
-    log.info("Main process starts.")
+    logger.info("Main process starts.")
     callback_function_usage()
-    log.info("Main process end.")
+    logger.info("Main process end.")
 
 
-if __name__ == '__main__':
-    logRecorder()
+if __name__ == "__main__":
     main()

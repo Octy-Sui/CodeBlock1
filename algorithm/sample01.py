@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/6/15 9:57 下午
 # @Author  : octy
 
@@ -13,13 +11,13 @@ def return_sub(input_str):
     # find all sub list depending on input list
     length = len(input_str)
     combo = []
-    for i in range(2 ** length):
+    for i in range(2**length):
         sub = []
         for j in range(length):
             if (i >> j) % 2:  # 确认第j位byte是否为1; 已确认该值是否选择
                 sub.append(input_str[j])
         combo.append("".join(sub))
-    print("length: {0}, {1}".format(len(combo), combo))
+    print(f"length: {0}, {1}".format(len(combo), combo))
 
 
 def climb_stairs(num):
@@ -56,7 +54,7 @@ def count_character_in_str_without_repeat(string):
     """
     tmp = {}
     for s in string:
-        if s in tmp.keys():
+        if s in tmp:
             tmp[s] = tmp[s] + 1
         else:
             tmp[s] = 1
@@ -128,7 +126,7 @@ class RainWaterTrapCalculator:
         water_volume = 0
         for height in wall_heights:
             if height < max_height:
-                water_volume += (max_height - height)
+                water_volume += max_height - height
         return water_volume
 
     def total_trapped_water(self, heights):
@@ -143,14 +141,16 @@ class RainWaterTrapCalculator:
                     left_wall_detected = True
             else:
                 if heights[i - 1] < heights[i]:
-                    total_water = total_water + self.calculate_water_in_region(heights[left_pointer:i + 1])
+                    total_water = total_water + self.calculate_water_in_region(
+                        heights[left_pointer : i + 1]
+                    )
                     left_wall_detected = False
                     left_pointer = i
         return total_water
 
 
 if __name__ == "__main__":
-    return_sub('asdfghjkl')
+    return_sub("asdfghjkl")
     # rv = countInStr("adfsdfsafefaf,;,a.da''.")
     # print(rv)
     # InOrNot(4)

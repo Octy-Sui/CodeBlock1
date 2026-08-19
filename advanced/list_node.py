@@ -1,29 +1,25 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/7/24 4:56 下午
 # @Author  : octy
 
 
-class Node(object):
+class Node:
     """Represents a singly linked node."""
 
     def __init__(self, _data, _next=None):
         self.data = _data
-        self.next = _next
+        self.next: None | Node = _next
 
 
 class DoubleWayNode(Node):
-
     def __init__(self, _data, _previous=None, _next=None):
-        super(DoubleWayNode, self).__init__(_data, _next)
+        super().__init__(_data, _next)
         self.previous = _previous
 
 
-class SingleLinkList(object):
-
+class SingleLinkList:
     def __init__(self):
         self._size = 0
-        self.head = None
+        self.head: None | Node = None
 
     def __len__(self):
         return self._size
@@ -37,7 +33,7 @@ class SingleLinkList(object):
     def __str__(self):
         rv = "Current Link Node elements:"
         for item in self:
-            rv += "{} ".format(item.data)
+            rv += f"{item.data} "
         return rv
 
     def is_empty(self):
@@ -47,13 +43,15 @@ class SingleLinkList(object):
         self.head = None
         self._size = 0
 
-    def add(self, node):
+    def add(self, node: Node):
         node.next = self.head
         self.head = node
         self._size += 1
 
     def append(self, node):
         probe = self.head
+        if probe is None:
+            raise ValueError("self.head is None")
         if self.is_empty():
             self.add(node)
         else:
@@ -70,6 +68,8 @@ class SingleLinkList(object):
             self.add(node)
         else:
             probe = self.head
+            if probe is None:
+                raise ValueError("self.head is None")
             count = 1
             for item in self:
                 count += 1
@@ -84,9 +84,11 @@ class SingleLinkList(object):
         print(str(self))
 
     def sort(self):
-        for i in range(0, self._size - 1):
+        for i in range(self._size - 1):
             probe = self.head
-            for j in range(0, self._size - i - 1):
+            for _ in range(self._size - i - 1):
+                if probe is None or probe.next is None:
+                    raise ValueError("self.head is None")
                 if probe.data > probe.next.data:
                     temp = probe.data
                     probe.data = probe.next.data
@@ -101,15 +103,23 @@ class SingleLinkList(object):
             #   return
         else:
             if index == 1:
+                if self.head is None:
+                    raise ValueError("self.head is None")
                 self.head = self.head.next
                 probe = self.head
             elif index == 2:
                 probe = self.head
+                if probe is None or probe.next is None:
+                    raise ValueError("self.head is None")
                 probe.next = probe.next.next
             else:
                 probe = self.head
-                for i in range(1, index - 1):
+                for _ in range(1, index - 1):
+                    if probe is None or probe.next is None:
+                        raise ValueError("self.head is None")
                     probe = probe.next
+                if probe is None or probe.next is None:
+                    raise ValueError("self.head is None")
                 probe.next = probe.next.next
         self._size -= 1
 
@@ -117,12 +127,16 @@ class SingleLinkList(object):
         contain = 0
         probe = self.head
         for i in range(self._size):
+            if probe is None:
+                raise ValueError("self.head is None")
             if probe.data == num:
-                print("%d在链表中%d处\n" % (num, i + 1))  # i+1是在正常人认为的位置处，程序员一般是从0开始算起
+                print(
+                    f"{num}在链表中{i + 1}处"
+                )  # i+1是在正常人认为的位置处，程序员一般是从0开始算起
                 contain = 1
             probe = probe.next
         if contain == 0:
-            print("%d不在链表中\n" % num)
+            print(f"{num}不在链表中")
 
     def search(self, index):
         probe = self.head
@@ -132,6 +146,8 @@ class SingleLinkList(object):
                 index = eval(input())
         if index > 0 or index <= self._size:
             for i in range(index - 1):
+                if probe is None or probe.next is None:
+                    raise ValueError("self.head is None")
                 probe = probe.next
             return probe
 
@@ -141,7 +157,11 @@ class SingleLinkList(object):
             print("你输入的下标不对，请重新输入!\n")
         else:
             for i in range(index - 1):
+                if probe is None or probe.next is None:
+                    raise ValueError("self.head is None")
                 probe = probe.next
+            if probe is None:
+                raise ValueError("self.head is None")
             probe.data = num
 
 
@@ -149,10 +169,10 @@ def main():
     # 创建一个单链表对象
     single_link_list = SingleLinkList()  # 实例化
 
-    print('''
+    print("""
           **********************************************************************************************************************
           **********************************************请选择相应的序号完成相应的操作********************************************
-          **********************************************************************************************************************   
+          **********************************************************************************************************************
           **         0、结束所有操作！！！！！！                                                                               ***
           **         1、验证链表里面有没有值！                                                                                 ***
           **         2、从头部插入数值！                                                                                       ***
@@ -164,15 +184,15 @@ def main():
           **         8、给链表排序！                                                                                          ***
           **         9、修改！                                                                                                ***
           **********************************************************************************************************************
-          ''')
+          """)
     while True:
         number = eval(input("——————输入下一步要进行的相应操作序号——————："))
-        if (number == 1):
+        if number == 1:
             print("正在验证链表里面有没有值：")
             single_link_list.travel()
             print("\n")
 
-        if (number == 2):
+        if number == 2:
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在从头部插入数值：")
@@ -181,7 +201,7 @@ def main():
             print("操作后链表的状态。")
             single_link_list.travel()
 
-        if (number == 3):
+        if number == 3:
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在尾部插入数值：")
@@ -190,7 +210,7 @@ def main():
             print("操作后链表的状态。")
             single_link_list.travel()
 
-        if (number == 4):
+        if number == 4:
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在按指定位置插入数值：")
@@ -200,7 +220,7 @@ def main():
             print("操作后链表的状态。")
             single_link_list.travel()
 
-        if (number == 5):
+        if number == 5:
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在删除：")
@@ -208,18 +228,20 @@ def main():
             print("操作后链表的状态。")
             single_link_list.travel()
 
-        if (number == 6):
+        if number == 6:
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在查找一个节点是否在链表中：")
             single_link_list.is_contain(eval(input("输入要验证的数：")))
 
-        if (number == 7):
+        if number == 7:
             print("正在按下标查找节点处的数值：")
-            node = single_link_list.search(eval(input("输入下标值：")))  # 查找某节点处的值
-            print("这个位置的值为：%s" % node.data)
+            node = single_link_list.search(
+                eval(input("输入下标值："))
+            )  # 查找某节点处的值
+            print(f"这个位置的值为：{node.data}")
 
-        if (number == 8):
+        if number == 8:
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在排序：")
@@ -227,7 +249,7 @@ def main():
             print("操作后链表的状态。")
             single_link_list.travel()
 
-        if (number == 9):
+        if number == 9:
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在修改（这是在上面排序后的前提下修改。）：")
@@ -238,8 +260,9 @@ def main():
             single_link_list.travel()  # 遍历一遍
 
         if number == 0:
+            print("操作已退出.")
             break
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2021/7/20 7:08 下午
 # @Author  : octy
 
-from advanced.DataStructure import Stack
+from advanced.data_structure import Stack
 
 
 def calc_max_profit(price_list):
@@ -22,7 +20,7 @@ def calc_max_profit(price_list):
             cost = price
             continue
     max_profit = max(profits)
-    return max_profit if max_profit > 0 else 0
+    return max(0, max_profit)
 
 
 def generate_fibonacci(max_terms):
@@ -76,7 +74,7 @@ def match_brackets(input_str):
         print(f"{input_str} {MISMATCH_MSG}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     input_list = [7, 1, 5, 3, 6, 4]
     rv = calc_max_profit(input_list)
     print(rv)

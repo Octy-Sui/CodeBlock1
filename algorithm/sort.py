@@ -1,14 +1,13 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
 # @Time    :2020/6/8 10:29 下午
 # @Author  : octy
 
-from advanced.BinaryTree import MaxHeap
+from advanced.binary_tree import MaxHeap
+
 
 def swap(lyst, i, j):
-    temp = lyst[i]
-    lyst[i] = lyst[j]
-    lyst[j] = temp
+    # 建议直接使用内联（Inline），函数调用开销也比较大
+    if i != j:
+        lyst[i], lyst[j] = lyst[j], lyst[j]
 
 
 def bubble_sort(lyst):
@@ -72,7 +71,9 @@ def partition(lyst, left, right):
     Algorithm complexity：O(n)
     时间复杂度：O(n), 空间复杂度：O(1) 不稳定
     """
-    if right - left > 1:  # 如果数组长度大于2, 则选择列表第一个元素、中间元素和最后一个元素的中位数作为pivot
+    if (
+        right - left > 1
+    ):  # 如果数组长度大于2, 则选择列表第一个元素、中间元素和最后一个元素的中位数作为pivot
         mid = (left + right) // 2
         if lyst[left] <= lyst[mid] <= lyst[right]:
             pivot_index = mid
@@ -187,7 +188,7 @@ def bubbleSort(lyst):
     Algorithm complexity：O(n^2)
 
     :param lyst:
-    :return: 
+    :return:
     """
     n = len(lyst)
     while n > 1:
@@ -200,7 +201,7 @@ def bubbleSort(lyst):
     print(lyst)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     bubble_sort([1, 7, 11, 8, 12, 9, 10])
     selectionSort([1, 7, 11, 8, 12, 9, 10])
     print(quick_sort([12, 7, 11, 8, 21, 9, 10, 5]))

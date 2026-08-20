@@ -1,8 +1,11 @@
 # @Time    :2024/7/20 11:19
 # @Author  : octy
 
+
+from heapq import heapify, heappop, heappush
+
 from advanced.data_structure import Stack
-from advanced.list_node import Node
+from advanced.list_node import ListNode, convert_list_to_link_list
 from config.timer import timer
 
 
@@ -47,7 +50,7 @@ def add_two_str_numbers(l1, l2):
     解题思路：
     模拟：顺序相加即可，注意处理进位的不同场景; 时间复杂度: O(max(m,n)) 空间复杂度: O(1)
     """
-    head_node = work_node = Node(0)
+    head_node = work_node = ListNode(0)
     left, right = l1, l2
     while True:
         if left is None:
@@ -60,14 +63,14 @@ def add_two_str_numbers(l1, l2):
         else:
             right_value = right.data
             right = right.next
-        add_two = left_value + right_value + work_node.data
-        work_node.data = add_two % 10
+        add_two = left_value + right_value + work_node.val
+        work_node.val = add_two % 10
         if left is None and right is None:
             break
-        work_node.next = Node(add_two // 10)
+        work_node.next = ListNode(add_two // 10)
         work_node = work_node.next
     if add_two // 10:
-        work_node.next = Node(add_two // 10)
+        work_node.next = ListNode(add_two // 10)
     return head_node
 
 
@@ -209,6 +212,92 @@ def match_brackets(input_str):
         print(f"{input_str} match")
 
 
+def merge_two_lists(a: ListNode | None, b: ListNode | None) -> ListNode | None:
+    """
+    LeetCode 经典题库 21. 合并两个有序链表
+    时间复杂度：O(n+m), 空间复杂度：O(1)
+    """
+    if a is None or b is None:
+        return a if a is not None else b
+
+    head = ListNode(0)
+    tail = head
+
+    a_ptr = a
+    b_ptr = b
+
+    while a_ptr is not None and b_ptr is not None:
+        if a_ptr.val < b_ptr.val:
+            tail.next = a_ptr
+            a_ptr = a_ptr.next
+        else:
+            tail.next = b_ptr
+            b_ptr = b_ptr.next
+
+        tail = tail.next
+
+    tail.next = a_ptr if a_ptr is not None else b_ptr
+
+    return head.next
+
+
+def merge_k_list(lists: list[ListNode | None]) -> ListNode | None:
+    """
+    LeetCode LCR78. 合并k个升序链表
+    时间复杂度：O(k^2n), 空间复杂度：O(1)
+    """
+    if not lists or lists[0] is None:
+        return None
+    head = tmp = None
+    while True:
+        min_value = None
+        min_ptr = None
+        for i in range(len(lists)):
+            cursor = lists[i]
+            if cursor is None:
+                continue
+            if min_value is None or cursor.val <= min_value:
+                min_value = cursor.val
+                min_ptr = i
+        if min_value is None or min_ptr is None:
+            break
+        if tmp is None:
+            tmp = ListNode(min_value)
+            if head is None:
+                head = tmp
+        else:
+            tmp.next = ListNode(min_value)
+            tmp = tmp.next
+        node = lists[min_ptr]
+        if node is not None:
+            lists[min_ptr] = node.next
+    return head
+
+
+def merge_k_list_partition(lists: list[ListNode | None]) -> ListNode | None:
+    m = len(lists)
+    if m == 0:
+        return None  # 注意输入的 lists 可能是空的
+    if m == 1:
+        return lists[0]  # 无需合并，直接返回
+    left = merge_k_list_partition(lists[: m // 2])  # 合并左半部分
+    right = merge_k_list_partition(lists[m // 2 :])  # 合并右半部分
+    return merge_two_lists(left, right)  # 最后把左半和右半合并
+
+
+def merge_k_list_min_heap(lists: list[ListNode | None]) -> ListNode | None:
+    cur = dummy = ListNode(0)  # 哨兵节点，作为合并后链表头节点的前一个节点
+    h = [head for head in lists if head]  # 初始把所有链表的头节点入堆
+    heapify(h)  # 堆化
+    while h:  # 循环直到堆为空
+        node = heappop(h)  # 剩余节点中的最小节点
+        if node.next:  # 下一个节点不为空
+            heappush(h, node.next)  # 下一个节点有可能是最小节点，入堆
+        cur.next = node  # 合并到新链表中
+        cur = cur.next  # 准备合并下一个节点
+    return dummy.next  # 哨兵节点的下一个节点就是新链表的头节点
+
+
 def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:
     """
     LeetCode 经典题库56. 合并区间
@@ -324,6 +413,9 @@ def calc_max_profit(price_list):
 def contains_nearby_duplicate(nums: list[int], k: int) -> bool:
     """
     LeetCode 经典题库219. 存在重复元素 II
+    解决方案：
+    固定滑动窗口
+    时间复杂度：O(n), 空间复杂度：O(1)
     """
     for left, left_value in enumerate(nums):
         for right in range(
@@ -584,7 +676,11 @@ def countDistinct(n: int) -> int:
 if __name__ == "__main__":
     # rv = find_median_in_two_arrays(array1=[1, 3], array2=[2])
     # print(rv)
-    nums = [1, 1, 1, 3]
-    m = 2
-    k = 2
-    print(calc_max_sum_of_almost_only_subarray_v2(nums, m, k))
+    nodes_list = []
+    listss = [[1, 4, 5], [1, 3, 4], [2, 6]]
+    for lst in listss:
+        nodes_list.append(convert_list_to_link_list(lst))
+    res = merge_k_list_min_heap(nodes_list)
+    while res is not None:
+        print(res.val)
+        res = res.next

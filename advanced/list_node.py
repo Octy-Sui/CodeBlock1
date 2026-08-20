@@ -2,15 +2,18 @@
 # @Author  : octy
 
 
-class Node:
+class ListNode:
     """Represents a singly linked node."""
 
     def __init__(self, _data, _next=None):
-        self.data = _data
-        self.next: None | Node = _next
+        self.val: int = _data
+        self.next: None | ListNode = _next
+
+    def __lt__(self, other: "ListNode") -> bool:
+        return self.val < other.val
 
 
-class DoubleWayNode(Node):
+class DoubleWayNode(ListNode):
     def __init__(self, _data, _previous=None, _next=None):
         super().__init__(_data, _next)
         self.previous = _previous
@@ -19,7 +22,7 @@ class DoubleWayNode(Node):
 class SingleLinkList:
     def __init__(self):
         self._size = 0
-        self.head: None | Node = None
+        self.head: None | ListNode = None
 
     def __len__(self):
         return self._size
@@ -43,7 +46,7 @@ class SingleLinkList:
         self.head = None
         self._size = 0
 
-    def add(self, node: Node):
+    def add(self, node: ListNode):
         node.next = self.head
         self.head = node
         self._size += 1
@@ -89,10 +92,10 @@ class SingleLinkList:
             for _ in range(self._size - i - 1):
                 if probe is None or probe.next is None:
                     raise ValueError("self.head is None")
-                if probe.data > probe.next.data:
-                    temp = probe.data
-                    probe.data = probe.next.data
-                    probe.next.data = temp
+                if probe.val > probe.next.val:
+                    temp = probe.val
+                    probe.val = probe.next.val
+                    probe.next.val = temp
                 probe = probe.next
 
     def delete(self, index):
@@ -129,7 +132,7 @@ class SingleLinkList:
         for i in range(self._size):
             if probe is None:
                 raise ValueError("self.head is None")
-            if probe.data == num:
+            if probe.val == num:
                 print(
                     f"{num}在链表中{i + 1}处"
                 )  # i+1是在正常人认为的位置处，程序员一般是从0开始算起
@@ -162,7 +165,7 @@ class SingleLinkList:
                 probe = probe.next
             if probe is None:
                 raise ValueError("self.head is None")
-            probe.data = num
+            probe.val = num
 
 
 def main():
@@ -196,7 +199,7 @@ def main():
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在从头部插入数值：")
-            node1 = Node(eval(input("输入要插入的值:")))  # 从头部插入数值
+            node1 = ListNode(eval(input("输入要插入的值:")))  # 从头部插入数值
             single_link_list.add(node1)
             print("操作后链表的状态。")
             single_link_list.travel()
@@ -205,7 +208,7 @@ def main():
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在尾部插入数值：")
-            node2 = Node(eval(input("输入要插入的值:")))
+            node2 = ListNode(eval(input("输入要插入的值:")))
             single_link_list.append(node2)
             print("操作后链表的状态。")
             single_link_list.travel()
@@ -214,7 +217,7 @@ def main():
             print("目前的链表状态。")
             single_link_list.travel()
             print("正在按指定位置插入数值：")
-            node3 = Node(eval(input("输入插入的数：")))
+            node3 = ListNode(eval(input("输入插入的数：")))
             position = eval(input("输入要插入到的位置为："))
             single_link_list.insert(node3, position)
             print("操作后链表的状态。")
@@ -264,14 +267,15 @@ def main():
             break
 
 
-def convert_list_to_link_list(items: list) -> None | Node:
-    head: None | Node = None
+def convert_list_to_link_list(items: list) -> None | ListNode:
+    head: None | ListNode = None
     for item in items:
         if head is None:
-            head = Node(item)
+            head = ListNode(item)
             cursor = head
         else:
-            cursor.next = Node(item)
+            cursor.next = ListNode(item)
+            cursor = cursor.next
     return head
 
 

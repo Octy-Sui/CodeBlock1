@@ -5,7 +5,7 @@
 from heapq import heapify, heappop, heappush
 
 from advanced.data_structure import Stack
-from advanced.list_node import ListNode, convert_list_to_link_list
+from advanced.list_node import ListNode
 from config.timer import timer
 
 
@@ -429,6 +429,52 @@ def calc_max_profit(price_list):
     return majority_frequency_group
 
 
+def is_palindrome(s: str) -> bool:
+    """
+    LeetCode 经典题库 125. 验证回文串
+    如果在将所有大写字符转换为小写字符、并移除所有非字母数字字符之后，短语正着读和反着读都一样。则可以认为该短语是一个 回文串 。
+    字母和数字都属于字母数字字符。
+
+    探索规律：
+    左右双指针
+    时间复杂度：O(n), 空间复杂度：O(1)
+    """
+    left = 0
+    right = len(s) - 1
+    while left < right:
+        # 跳过左侧非字母数字字符
+        while left < right:
+            c = ord(s[left])
+            if 48 <= c <= 57 or 65 <= c <= 90 or 97 <= c <= 122:
+                break
+            left += 1
+
+        # 跳过右侧非字母数字字符
+        while right > left:
+            c = ord(s[right])
+            if 48 <= c <= 57 or 65 <= c <= 90 or 97 <= c <= 122:
+                break
+            right -= 1
+
+        left_ord = ord(s[left])
+        right_ord = ord(s[right])
+
+        # 大写统一转换为小写
+        if 65 <= left_ord <= 90:
+            left_ord += 32
+
+        if 65 <= right_ord <= 90:
+            right_ord += 32
+
+        if left_ord != right_ord:
+            return False
+
+        left += 1
+        right -= 1
+
+    return True
+
+
 def contains_nearby_duplicate(nums: list[int], k: int) -> bool:
     """
     LeetCode 经典题库219. 存在重复元素 II
@@ -693,13 +739,5 @@ def countDistinct(n: int) -> int:
 
 
 if __name__ == "__main__":
-    # rv = find_median_in_two_arrays(array1=[1, 3], array2=[2])
-    # print(rv)
-    nodes_list = []
-    listss = [[1, 4, 5], [1, 3, 4], [2, 6]]
-    for lst in listss:
-        nodes_list.append(convert_list_to_link_list(lst))
-    res = merge_k_list_min_heap(nodes_list)
-    while res is not None:
-        print(res.val)
-        res = res.next
+    s = "A man, a plan, a canal: Panama"
+    print(is_palindrome(s))
